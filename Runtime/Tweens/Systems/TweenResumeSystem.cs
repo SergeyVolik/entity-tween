@@ -4,28 +4,29 @@ namespace Timespawn.EntityTween.Tweens
 {
     [UpdateInGroup(typeof(TweenSimulationSystemGroup))]
     [UpdateAfter(typeof(TweenStateSystem))]
-    internal class TweenResumeSystem : SystemBase
+    internal partial class TweenResumeSystem : SystemBase
     {
         protected override void OnUpdate()
         {
-            EndSimulationEntityCommandBufferSystem endSimECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
-            EntityCommandBuffer.ParallelWriter parallelWriter = endSimECBSystem.CreateCommandBuffer().AsParallelWriter();
-            ComponentDataFromEntity<TweenPause> pauseFromEntity = GetComponentDataFromEntity<TweenPause>();
 
-            Entities
-                .WithReadOnly(pauseFromEntity)
-                .WithAll<TweenResumeCommand>()
-                .ForEach((int entityInQueryIndex, Entity entity) =>
-                {
-                    if (pauseFromEntity.HasComponent(entity))
-                    {
-                        parallelWriter.RemoveComponent<TweenPause>(entityInQueryIndex, entity);
-                    }
+            var ecs = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(World.Unmanaged);
+            //EntityCommandBuffer.ParallelWriter parallelWriter = endSimECBSystem.CreateCommandBuffer(World.Unmanaged).AsParallelWriter();
+            //ComponentLookup<TweenPause> pauseFromEntity = GetComponentLookup<TweenPause>();
 
-                    parallelWriter.RemoveComponent<TweenResumeCommand>(entityInQueryIndex, entity);
-                }).ScheduleParallel();
+            //Entities
+            //    .WithReadOnly(pauseFromEntity)
+            //    .WithAll<TweenResumeCommand>()
+            //    .ForEach((int entityInQueryIndex, Entity entity) =>
+            //    {
+            //        if (pauseFromEntity.HasComponent(entity))
+            //        {
+            //            parallelWriter.RemoveComponent<TweenPause>(entityInQueryIndex, entity);
+            //        }
 
-            endSimECBSystem.AddJobHandleForProducer(Dependency);
+            //        parallelWriter.RemoveComponent<TweenResumeCommand>(entityInQueryIndex, entity);
+            //    }).ScheduleParallel();
+
+
         }
     }
 }
