@@ -6,19 +6,12 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
-#if UNITY_TINY_ALL_0_31_0
-using Unity.Tiny;
-#elif UNITY_2D_ENTITIES
-using Unity.U2D.Entities;
-#endif
+
 
 [assembly: RegisterGenericJobType(typeof(Timespawn.EntityTween.Tweens.TweenTranslationGenerateSystem.GenerateJob))]
 [assembly: RegisterGenericJobType(typeof(Timespawn.EntityTween.Tweens.TweenRotationGenerateSystem.GenerateJob))]
 [assembly: RegisterGenericJobType(typeof(Timespawn.EntityTween.Tweens.TweenScaleGenerateSystem.GenerateJob))]
 
-#if UNITY_TINY_ALL_0_31_0 || UNITY_2D_ENTITIES
-[assembly: RegisterGenericJobType(typeof(Timespawn.EntityTween.Tweens.TweenTintGenerateSystem.GenerateJob))]
-#endif
 
 namespace Timespawn.EntityTween.Tweens
 {
@@ -109,7 +102,5 @@ namespace Timespawn.EntityTween.Tweens
     internal partial class TweenRotationGenerateSystem : TweenGenerateSystem<TweenRotationCommand, TweenRotation, quaternion> {}
     internal partial class TweenScaleGenerateSystem : TweenGenerateSystem<TweenScaleCommand, TweenScale, float3> {}
 
-#if UNITY_TINY_ALL_0_31_0 || UNITY_2D_ENTITIES
-    internal class TweenTintGenerateSystem : TweenGenerateSystem<TweenTintCommand, TweenTint, SpriteRenderer, float4> {}
-#endif
+
 }

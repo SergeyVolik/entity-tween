@@ -3,10 +3,14 @@ using Timespawn.EntityTween.Math;
 using Unity.Entities;
 using Unity.Mathematics;
 
+
 [assembly: InternalsVisibleTo("Timespawn.EntityTween.Tests")]
 
 namespace Timespawn.EntityTween.Tweens
 {
+
+
+
     public static class Tween
     {
         public const byte Infinite = TweenState.LOOP_COUNT_INFINITE;
@@ -15,16 +19,16 @@ namespace Timespawn.EntityTween.Tweens
             in EntityManager entityManager,
             in Entity entity,
             in float3 start,
-            in float3 end, 
+            in float3 end,
             in TweenParams tweenParams)
         {
             Move(entityManager, entity, start, end, tweenParams.Duration, new EaseDesc(tweenParams.EaseType, tweenParams.EaseExponent), tweenParams.IsPingPong, tweenParams.LoopCount, tweenParams.StartDelay);
         }
 
         public static void Move(
-            in EntityCommandBuffer commandBuffer, 
-            in Entity entity, 
-            in float3 start, 
+            in EntityCommandBuffer commandBuffer,
+            in Entity entity,
+            in float3 start,
             in float3 end,
             in TweenParams tweenParams)
         {
@@ -32,11 +36,11 @@ namespace Timespawn.EntityTween.Tweens
         }
 
         public static void Move(
-            in EntityCommandBuffer.ParallelWriter parallelWriter, 
-            in int sortKey, 
-            in Entity entity, 
-            in float3 start, 
-            in float3 end, 
+            in EntityCommandBuffer.ParallelWriter parallelWriter,
+            in int sortKey,
+            in Entity entity,
+            in float3 start,
+            in float3 end,
             in TweenParams tweenParams)
         {
             Move(parallelWriter, sortKey, entity, start, end, tweenParams.Duration, new EaseDesc(tweenParams.EaseType, tweenParams.EaseExponent), tweenParams.IsPingPong, tweenParams.LoopCount, tweenParams.StartDelay);
@@ -45,11 +49,11 @@ namespace Timespawn.EntityTween.Tweens
         public static void Move(
             in EntityManager entityManager,
             in Entity entity,
-            in float3 start, 
-            in float3 end, 
+            in float3 start,
+            in float3 end,
             in float duration,
             in EaseDesc easeDesc = default,
-            in bool isPingPong = false, 
+            in bool isPingPong = false,
             in int loopCount = 1,
             in float startDelay = 0.0f)
         {
@@ -65,11 +69,11 @@ namespace Timespawn.EntityTween.Tweens
         public static void Move(
             in EntityCommandBuffer commandBuffer,
             in Entity entity,
-            in float3 start, 
-            in float3 end, 
+            in float3 start,
+            in float3 end,
             in float duration,
             in EaseDesc easeDesc = default,
-            in bool isPingPong = false, 
+            in bool isPingPong = false,
             in int loopCount = 1,
             in float startDelay = 0.0f)
         {
@@ -82,15 +86,64 @@ namespace Timespawn.EntityTween.Tweens
             commandBuffer.AddComponent(entity, new TweenTranslationCommand(tweenParams, start, end));
         }
 
+        public static void DelayedMove(
+          in EntityCommandBuffer commandBuffer,
+
+          in Entity entity,
+          in float3 start,
+          in float3 end,
+          in float duration,
+          in EaseDesc easeDesc = default,
+          in bool isPingPong = false,
+          in int loopCount = 1,
+          in float startDelay = 0.0f,
+          in float startTweenTime = 0.0f,
+          in bool startFromEntityPos = false)
+        {
+            if (!CheckParams(easeDesc.Exponent, loopCount))
+            {
+                return;
+            }
+
+            var buffer = commandBuffer.AddBuffer<DelayedMoveTween>(entity);
+
+
+            buffer.Add(new DelayedMoveTween
+            {
+                command = CreateMoveCommandInternal(commandBuffer, entity, start, end, duration, easeDesc, isPingPong, loopCount, startDelay),
+                StartFromEntityPos = startFromEntityPos,
+                startTime = startTweenTime
+
+            });
+
+        }
+
+        private static TweenTranslationCommand CreateMoveCommandInternal(
+           in EntityCommandBuffer commandBuffer,
+           in Entity entity,
+           in float3 start,
+           in float3 end,
+           in float duration,
+           in EaseDesc easeDesc = default,
+           in bool isPingPong = false,
+           in int loopCount = 1,
+           in float startDelay = 0.0f)
+        {
+
+            TweenParams tweenParams = new TweenParams(duration, easeDesc.Type, easeDesc.Exponent, isPingPong, loopCount, startDelay);
+            return new TweenTranslationCommand(tweenParams, start, end);
+        }
+
+
         public static void Move(
             in EntityCommandBuffer.ParallelWriter parallelWriter,
             in int sortKey,
             in Entity entity,
-            in float3 start, 
-            in float3 end, 
+            in float3 start,
+            in float3 end,
             in float duration,
             in EaseDesc easeDesc = default,
-            in bool isPingPong = false, 
+            in bool isPingPong = false,
             in int loopCount = 1,
             in float startDelay = 0.0f)
         {
@@ -104,30 +157,30 @@ namespace Timespawn.EntityTween.Tweens
         }
 
         public static void Rotate(
-            in EntityManager entityManager, 
-            in Entity entity, 
-            in quaternion start, 
-            in quaternion end, 
+            in EntityManager entityManager,
+            in Entity entity,
+            in quaternion start,
+            in quaternion end,
             in TweenParams tweenParams)
         {
             Rotate(entityManager, entity, start, end, tweenParams.Duration, new EaseDesc(tweenParams.EaseType, tweenParams.EaseExponent), tweenParams.IsPingPong, tweenParams.LoopCount, tweenParams.StartDelay);
         }
 
         public static void Rotate(
-            in EntityCommandBuffer commandBuffer, 
-            in Entity entity, 
-            in quaternion start, 
-            in quaternion end, 
+            in EntityCommandBuffer commandBuffer,
+            in Entity entity,
+            in quaternion start,
+            in quaternion end,
             in TweenParams tweenParams)
         {
             Rotate(commandBuffer, entity, start, end, tweenParams.Duration, new EaseDesc(tweenParams.EaseType, tweenParams.EaseExponent), tweenParams.IsPingPong, tweenParams.LoopCount, tweenParams.StartDelay);
         }
 
         public static void Rotate(
-            in EntityCommandBuffer.ParallelWriter parallelWriter, 
-            in int sortKey, 
-            in Entity entity, 
-            in quaternion start, 
+            in EntityCommandBuffer.ParallelWriter parallelWriter,
+            in int sortKey,
+            in Entity entity,
+            in quaternion start,
             in quaternion end,
             in TweenParams tweenParams)
         {
@@ -137,11 +190,11 @@ namespace Timespawn.EntityTween.Tweens
         public static void Rotate(
             in EntityManager entityManager,
             in Entity entity,
-            in quaternion start, 
-            in quaternion end, 
+            in quaternion start,
+            in quaternion end,
             in float duration,
             in EaseDesc easeDesc = default,
-            in bool isPingPong = false, 
+            in bool isPingPong = false,
             in int loopCount = 1,
             in float startDelay = 0.0f)
         {
@@ -157,11 +210,11 @@ namespace Timespawn.EntityTween.Tweens
         public static void Rotate(
             in EntityCommandBuffer commandBuffer,
             in Entity entity,
-            in quaternion start, 
-            in quaternion end, 
+            in quaternion start,
+            in quaternion end,
             in float duration,
             in EaseDesc easeDesc = default,
-            in bool isPingPong = false, 
+            in bool isPingPong = false,
             in int loopCount = 1,
             in float startDelay = 0.0f)
         {
@@ -178,11 +231,11 @@ namespace Timespawn.EntityTween.Tweens
             in EntityCommandBuffer.ParallelWriter parallelWriter,
             in int sortKey,
             in Entity entity,
-            in quaternion start, 
-            in quaternion end, 
+            in quaternion start,
+            in quaternion end,
             in float duration,
             in EaseDesc easeDesc = default,
-            in bool isPingPong = false, 
+            in bool isPingPong = false,
             in int loopCount = 1,
             in float startDelay = 0.0f)
         {
@@ -196,19 +249,19 @@ namespace Timespawn.EntityTween.Tweens
         }
 
         public static void Scale(
-            in EntityManager entityManager, 
-            in Entity entity, 
+            in EntityManager entityManager,
+            in Entity entity,
             in float3 start,
-            in float3 end, 
+            in float3 end,
             in TweenParams tweenParams)
         {
             Scale(entityManager, entity, start, end, tweenParams.Duration, new EaseDesc(tweenParams.EaseType, tweenParams.EaseExponent), tweenParams.IsPingPong, tweenParams.LoopCount, tweenParams.StartDelay);
         }
 
         public static void Scale(
-            in EntityCommandBuffer commandBuffer, 
-            in Entity entity, 
-            in float3 start, 
+            in EntityCommandBuffer commandBuffer,
+            in Entity entity,
+            in float3 start,
             in float3 end,
             in TweenParams tweenParams)
         {
@@ -216,11 +269,11 @@ namespace Timespawn.EntityTween.Tweens
         }
 
         public static void Scale(
-            in EntityCommandBuffer.ParallelWriter parallelWriter, 
-            in int sortKey, 
-            in Entity entity, 
-            in float3 start, 
-            in float3 end, 
+            in EntityCommandBuffer.ParallelWriter parallelWriter,
+            in int sortKey,
+            in Entity entity,
+            in float3 start,
+            in float3 end,
             in TweenParams tweenParams)
         {
             Scale(parallelWriter, sortKey, entity, start, end, tweenParams.Duration, new EaseDesc(tweenParams.EaseType, tweenParams.EaseExponent), tweenParams.IsPingPong, tweenParams.LoopCount, tweenParams.StartDelay);
@@ -229,11 +282,11 @@ namespace Timespawn.EntityTween.Tweens
         public static void Scale(
             in EntityManager entityManager,
             in Entity entity,
-            in float3 start, 
-            in float3 end, 
+            in float3 start,
+            in float3 end,
             in float duration,
             in EaseDesc easeDesc = default,
-            in bool isPingPong = false, 
+            in bool isPingPong = false,
             in int loopCount = 1,
             in float startDelay = 0.0f)
         {
@@ -249,11 +302,11 @@ namespace Timespawn.EntityTween.Tweens
         public static void Scale(
             in EntityCommandBuffer commandBuffer,
             in Entity entity,
-            in float3 start, 
-            in float3 end, 
+            in float3 start,
+            in float3 end,
             in float duration,
             in EaseDesc easeDesc = default,
-            in bool isPingPong = false, 
+            in bool isPingPong = false,
             in int loopCount = 1,
             in float startDelay = 0.0f)
         {
@@ -270,11 +323,11 @@ namespace Timespawn.EntityTween.Tweens
             in EntityCommandBuffer.ParallelWriter parallelWriter,
             in int sortKey,
             in Entity entity,
-            in float3 start, 
-            in float3 end, 
+            in float3 start,
+            in float3 end,
             in float duration,
             in EaseDesc easeDesc = default,
-            in bool isPingPong = false, 
+            in bool isPingPong = false,
             in int loopCount = 1,
             in float startDelay = 0.0f)
         {

@@ -8,7 +8,7 @@ namespace Timespawn.EntityTween.Tweens
         public TweenParams TweenParams;
         public float3 Start;
         public float3 End;
-
+        
         public TweenTranslationCommand(in TweenParams tweenParams, in float3 start, in float3 end)
         {
             TweenParams = tweenParams;

@@ -9,9 +9,6 @@ using Unity.Jobs;
 [assembly: RegisterGenericJobType(typeof(Timespawn.EntityTween.Tweens.TweenRotationDestroySystem.DestroyJob))]
 [assembly: RegisterGenericJobType(typeof(Timespawn.EntityTween.Tweens.TweenScaleDestroySystem.DestroyJob))]
 
-#if UNITY_TINY_ALL_0_31_0 || UNITY_2D_ENTITIES
-[assembly: RegisterGenericJobType(typeof(Timespawn.EntityTween.Tweens.TweenTintDestroySystem.DestroyJob))]
-#endif
 
 namespace Timespawn.EntityTween.Tweens
 {
@@ -117,7 +114,4 @@ namespace Timespawn.EntityTween.Tweens
     internal partial class TweenRotationDestroySystem : TweenDestroySystem<TweenRotation> {}
     internal partial class TweenScaleDestroySystem : TweenDestroySystem<TweenScale> {}
 
-#if UNITY_TINY_ALL_0_31_0 || UNITY_2D_ENTITIES
-    internal class TweenTintDestroySystem : TweenDestroySystem<TweenTint> {}
-#endif
 }
