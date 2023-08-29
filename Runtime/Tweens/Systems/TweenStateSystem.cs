@@ -4,13 +4,13 @@ namespace Timespawn.EntityTween.Tweens
 {
     [UpdateInGroup(typeof(TweenSimulationSystemGroup))]
     [UpdateAfter(typeof(TweenApplySystemGroup))]
-    internal class TweenStateSystem : SystemBase
+    internal partial class TweenStateSystem : SystemBase
     {
         protected override void OnUpdate()
         {
-            BufferFromEntity<TweenDestroyCommand> destroyBufferFromEntity = GetBufferFromEntity<TweenDestroyCommand>(true);
+            var destroyBufferFromEntity = SystemAPI.GetBufferLookup<TweenDestroyCommand>(true);
 
-            EndSimulationEntityCommandBufferSystem endSimECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+            EndSimulationEntityCommandBufferSystem endSimECBSystem = World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
             EntityCommandBuffer.ParallelWriter parallelWriter = endSimECBSystem.CreateCommandBuffer().AsParallelWriter();
 
             Entities
@@ -19,7 +19,7 @@ namespace Timespawn.EntityTween.Tweens
                 .ForEach((Entity entity, int entityInQueryIndex, ref DynamicBuffer<TweenState> tweenBuffer) =>
                 {
                     DynamicBuffer<TweenDestroyCommand> newDestroyCommandBuffer = default;
-                    if (!destroyBufferFromEntity.HasComponent(entity))
+                    if (!destroyBufferFromEntity.HasBuffer(entity))
                     {
                         newDestroyCommandBuffer = parallelWriter.AddBuffer<TweenDestroyCommand>(entityInQueryIndex, entity);
                     }

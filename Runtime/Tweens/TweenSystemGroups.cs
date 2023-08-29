@@ -18,17 +18,17 @@ namespace Timespawn.EntityTween.Tweens
     //   - TweenDestroySystem(s)
 
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    internal class TweenSimulationSystemGroup : ComponentSystemGroup {}
+    internal partial class TweenSimulationSystemGroup : ComponentSystemGroup {}
 
     [UpdateInGroup(typeof(TweenSimulationSystemGroup))]
     [UpdateBefore(typeof(TweenEaseSystem))]
-    internal class TweenGenerateSystemGroup : ComponentSystemGroup {}
+    internal partial class TweenGenerateSystemGroup : ComponentSystemGroup {}
 
     [UpdateInGroup(typeof(TweenSimulationSystemGroup))]
     [UpdateAfter(typeof(TweenEaseSystem))]
-    internal class TweenApplySystemGroup : ComponentSystemGroup {}
+    internal partial class TweenApplySystemGroup : ComponentSystemGroup {}
 
     [UpdateInGroup(typeof(TweenSimulationSystemGroup))]
     [UpdateAfter(typeof(TweenApplySystemGroup))]
-    internal class TweenDestroySystemGroup : ComponentSystemGroup {}
+    internal partial class TweenDestroySystemGroup : ComponentSystemGroup {}
 }

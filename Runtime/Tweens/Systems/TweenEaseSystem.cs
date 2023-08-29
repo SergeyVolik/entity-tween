@@ -5,11 +5,11 @@ using Unity.Entities;
 namespace Timespawn.EntityTween
 {
     [UpdateInGroup(typeof(TweenSimulationSystemGroup))]
-    internal class TweenEaseSystem : SystemBase
+    internal partial class TweenEaseSystem : SystemBase
     {
         protected override void OnUpdate()
         {
-            float deltaTime = Time.DeltaTime;
+            float deltaTime = SystemAPI.Time.DeltaTime;
 
             Entities
                 .WithNone<TweenPause>()

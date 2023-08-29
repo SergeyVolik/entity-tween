@@ -5,13 +5,13 @@ namespace Timespawn.EntityTween.Tweens
     [UpdateInGroup(typeof(TweenSimulationSystemGroup))]
     [UpdateAfter(typeof(TweenStateSystem))]
     [UpdateBefore(typeof(TweenDestroySystemGroup))]
-    internal class TweenStopSystem : SystemBase
+    internal partial class TweenStopSystem : SystemBase
     {
         protected override void OnUpdate()
         {
-            BufferFromEntity<TweenDestroyCommand> destroyBufferFromEntity = GetBufferFromEntity<TweenDestroyCommand>(true);
+           var destroyBufferFromEntity = SystemAPI.GetBufferLookup<TweenDestroyCommand>(true);
 
-            EndSimulationEntityCommandBufferSystem endSimECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+            EndSimulationEntityCommandBufferSystem endSimECBSystem = World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
             EntityCommandBuffer.ParallelWriter parallelWriter = endSimECBSystem.CreateCommandBuffer().AsParallelWriter();
 
             Entities
@@ -22,7 +22,7 @@ namespace Timespawn.EntityTween.Tweens
                     for (int i = 0; i < tweenBuffer.Length; i++)
                     {
                         TweenState tween = tweenBuffer[i];
-                        if (!destroyBufferFromEntity.HasComponent(entity))
+                        if (!destroyBufferFromEntity.HasBuffer(entity))
                         {
                             parallelWriter.AddBuffer<TweenDestroyCommand>(entityInQueryIndex, entity);
                         }
@@ -32,7 +32,7 @@ namespace Timespawn.EntityTween.Tweens
 
                     parallelWriter.RemoveComponent<TweenStopCommand>(entityInQueryIndex, entity);
 
-                    if (HasComponent<TweenPause>(entity))
+                    if (SystemAPI.HasComponent<TweenPause>(entity))
                     {
                         parallelWriter.RemoveComponent<TweenPause>(entityInQueryIndex, entity);
                     }

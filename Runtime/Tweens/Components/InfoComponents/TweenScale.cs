@@ -4,7 +4,8 @@ using Unity.Transforms;
 
 namespace Timespawn.EntityTween.Tweens
 {
-    [WriteGroup(typeof(Scale))]
+    //TODO возможен баг
+    //[WriteGroup(typeof(Scale))]
     public struct TweenScale : IComponentData, ITweenId, ITweenInfo<float3>
     {
         public int Id;
