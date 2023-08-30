@@ -10,22 +10,11 @@
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": false,
+    "allowUnsafeCode": true,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [
-        {
-            "name": "com.unity.tiny.all",
-            "expression": "0.31.0-preview.1",
-            "define": "UNITY_TINY_ALL_0_31_0"
-        },
-        {
-            "name": "com.unity.2d.entities",
-            "expression": "",
-            "define": "UNITY_2D_ENTITIES"
-        }
-    ],
+    "versionDefines": [],
     "noEngineReferences": false
 }

@@ -1,5 +1,7 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using Timespawn.EntityTween.Math;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -9,6 +11,7 @@ using Unity.Mathematics;
 namespace Timespawn.EntityTween.Tweens
 {
 
+   
 
 
     public static class Tween
@@ -108,19 +111,37 @@ namespace Timespawn.EntityTween.Tweens
             var buffer = commandBuffer.AddBuffer<DelayedMoveTween>(entity);
 
 
-            buffer.Add(new DelayedMoveTween
-            {
-                command = CreateMoveCommandInternal(commandBuffer, entity, start, end, duration, easeDesc, isPingPong, loopCount, startDelay),
-                StartFromEntityPos = startFromEntityPos,
-                startTime = startTweenTime
-
-            });
+            buffer.Add(CreatedDelayedMoveComponentInternal(start, end, duration, easeDesc, isPingPong, loopCount, startDelay, startTweenTime, startFromEntityPos));
 
         }
 
-        private static TweenTranslationCommand CreateMoveCommandInternal(
-           in EntityCommandBuffer commandBuffer,
-           in Entity entity,
+        internal static DelayedMoveTween CreatedDelayedMoveComponentInternal(
+         in float3 start,
+         in float3 end,
+         in float duration,
+         in EaseDesc easeDesc = default,
+         in bool isPingPong = false,
+         in int loopCount = 1,
+         in float startDelay = 0.0f,
+         in float startTweenTime = 0.0f,
+         in bool startFromEntityPos = false)
+        {
+            if (!CheckParams(easeDesc.Exponent, loopCount))
+            {
+                throw new Exception("easeDesc param is invalid");
+            }
+
+            return new DelayedMoveTween
+            {
+                command = CreateMoveCommandInternal(start, end, duration, easeDesc, isPingPong, loopCount, startDelay),
+                StartFromEntityPos = startFromEntityPos,
+                startTime = startTweenTime
+
+            };
+
+        }
+
+        internal static TweenTranslationCommand CreateMoveCommandInternal(
            in float3 start,
            in float3 end,
            in float duration,
