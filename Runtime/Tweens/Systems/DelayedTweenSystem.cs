@@ -43,7 +43,7 @@ namespace Timespawn.EntityTween.Tweens
         public TweenRotationCommand GetCommand() => command;
     }
 
-    internal struct DelayedScaleTween : IDelayedCommand<TweenScaleCommand>, IBufferElementData
+    public struct DelayedScaleTween : IDelayedCommand<TweenScaleCommand>, IBufferElementData
     {
         public float startTime;
         public TweenScaleCommand command;

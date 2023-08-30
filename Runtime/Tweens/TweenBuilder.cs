@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
+using Timespawn.EntityTween.Math;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -13,103 +15,203 @@ namespace Timespawn.EntityTween.Tweens
     {
 
 
-
-
-        internal struct BuilderData
+        DelayedMoveTween moveTween;
+        DelayedRotationTween rotTween;
+        DelayedScaleTween scaleTween;
+        TweenType type;
+        private DynamicBuffer<DelayedRotationTween> rotBuffer;
+        private DynamicBuffer<DelayedScaleTween> scaleBuffer;
+        private DynamicBuffer<DelayedMoveTween> moveBuffer;
+        private Entity lastEntity;
+        private enum TweenType
         {
-            internal NativeList<DelayedMoveTween> moveTweens;
-            internal NativeList<DelayedRotationTween> rotTweens;
-            internal NativeList<DelayedScaleTween> scaleTweens;
-
-
+             None = 0,
+             Rot,
+             Scale,
+             Move
         }
 
-        private bool inited;
-        internal BuilderData data;
-
-        public void Dispose()
+        public TweenBuilder CreateMoveTween(
+         in float3 start,
+         in float3 end,
+         in float duration,
+         in EaseDesc easeDesc = default,
+         in bool isPingPong = false,
+         in int loopCount = 1,
+         in float startDelay = 0.0f,
+         in float startTweenTime = 0.0f,
+         in bool startFromEntityPos = false)
         {
-            data.moveTweens.Dispose();
-            data.rotTweens.Dispose();
-            data.scaleTweens.Dispose();
+
+            moveTween = Tween.CreateMoveCommand(start, end, duration, easeDesc, isPingPong, loopCount, startDelay, startTweenTime: startTweenTime);
+            type = TweenType.Move;
+            return this;
         }
 
-        public TweenBuilder(int initListsSize = 1)
+        public TweenBuilder CreateScaleTween(in float3 start,
+         in float3 end,
+         in float duration,
+         in EaseDesc easeDesc = default,
+         in bool isPingPong = false,
+         in int loopCount = 1,
+         in float startDelay = 0.0f,
+         in float startTweenTime = 0.0f)
         {
-            data = default(BuilderData);
-            inited = false;
 
-            Init(initListsSize);
-        }
-
-        private void Init(int initListsSize = 1)
-        {
-            if (inited)
-                return;
-
-            inited = true;
-           
-
-            data.moveTweens = new NativeList<DelayedMoveTween>(initListsSize, Allocator.Persistent);
-            data.rotTweens = new NativeList<DelayedRotationTween>(initListsSize, Allocator.Persistent);
-            data.scaleTweens = new NativeList<DelayedScaleTween>(initListsSize, Allocator.Persistent);
-        }
-
-
-
-        public TweenBuilder Move(float duration, float3 start, float3 end, float startTime = 0)
-        {
-            Init();
-
-            var command = Tween.CreatedDelayedMoveComponentInternal(start, end, duration, startTweenTime: startTime);
-
-            data.moveTweens.Add(command);
+            scaleTween = Tween.CreateScaleCommand(start, end, duration, easeDesc, isPingPong, loopCount, startDelay, startTime: startTweenTime);
+            type = TweenType.Scale;
 
             return this;
         }
 
-        public void Build(in EntityManager entityManager, in Entity e)
+        public TweenBuilder CreateRotateTween(
+            in quaternion start,
+           in quaternion end,
+           in float duration,
+           in EaseDesc easeDesc = default,
+           in bool isPingPong = false,
+           in int loopCount = 1,
+           in float startDelay = 0.0f,
+           in float startTime = 0.0f)
         {
-            Init();
 
-            var bufferMove = entityManager.AddBuffer<DelayedMoveTween>(e);
-            bufferMove.AddRange(data.moveTweens.AsArray());
 
-            var bufferRot = entityManager.AddBuffer<DelayedRotationTween>(e);
-            bufferRot.AddRange(data.rotTweens.AsArray());
+            rotTween = Tween.CreateRotationCommand(start, end, duration, easeDesc, isPingPong, loopCount, startDelay, startTime: startTime);
+            type = TweenType.Rot;
 
-            var bufferScale = entityManager.AddBuffer<DelayedScaleTween>(e);
-            bufferScale.AddRange(data.scaleTweens.AsArray());
 
-            Dispose();
+
+            return this;
         }
 
-        public void Build(in EntityCommandBuffer.ParallelWriter ecb, in int sortKey, in Entity e)
+
+        public TweenBuilder BindCurrent(in EntityManager entityManager, in Entity e)
         {
-            var bufferMove = ecb.AddBuffer<DelayedMoveTween>(sortKey, e);
-            bufferMove.AddRange(data.moveTweens.AsArray());
+            CheckEntity(e);
+            switch (type)
+            {
 
-            var bufferRot = ecb.AddBuffer<DelayedRotationTween>(sortKey, e);
-            bufferRot.AddRange(data.rotTweens.AsArray());
+                case TweenType.Rot:
+                    rotBuffer = GetBuffer(e, entityManager, rotBuffer);
+                    rotBuffer.Add(rotTween);
+                    break;
+                case TweenType.Scale:
 
-            var bufferScale = ecb.AddBuffer<DelayedScaleTween>(sortKey, e);
-            bufferScale.AddRange(data.scaleTweens.AsArray());
+                    scaleBuffer = GetBuffer(e, entityManager, scaleBuffer);
+                    scaleBuffer.Add(scaleTween);
+                    break;
+                case TweenType.Move:
+                    moveBuffer = GetBuffer(e, entityManager, moveBuffer);
+                    moveBuffer.Add(moveTween);
+                    break;
+                default:
+                    break;
+            }
 
-            Dispose();
+            return this;
+
         }
-        public void Build(in EntityCommandBuffer ecb, in Entity e)
+
+        public TweenBuilder BindCurrent(in EntityCommandBuffer.ParallelWriter ecb, in int sortKey, in Entity e)
         {
+            CheckEntity(e);
+            switch (type)
+            {
+             
+                case TweenType.Rot:
+                    rotBuffer = GetBuffer(e, sortKey, ecb, rotBuffer);
+                    rotBuffer.Add(rotTween);
+                    break;
+                case TweenType.Scale:
 
-            var bufferMove = ecb.AddBuffer<DelayedMoveTween>(e);
-            bufferMove.AddRange(data.moveTweens.AsArray());
+                    scaleBuffer = GetBuffer(e, sortKey, ecb, scaleBuffer);
+                    scaleBuffer.Add(scaleTween);
+                    break;
+                case TweenType.Move:
+                    moveBuffer = GetBuffer(e, sortKey, ecb, moveBuffer);
+                    moveBuffer.Add(moveTween);
+                    break;
+                default:
+                    break;
+            }
 
-            var bufferRot = ecb.AddBuffer<DelayedRotationTween>(e);
-            bufferRot.AddRange(data.rotTweens.AsArray());
+            return this;
 
-            var bufferScale = ecb.AddBuffer<DelayedScaleTween>(e);
-            bufferScale.AddRange(data.scaleTweens.AsArray());
 
-            Dispose();
+        }
+
+       
+
+        public TweenBuilder BindCurrent(in EntityCommandBuffer ecb, in Entity e)
+        {
+            CheckEntity(e);
+
+            switch (type)
+            {
+
+                case TweenType.Rot:
+                    rotBuffer = GetBuffer(e, ecb, rotBuffer);
+                    rotBuffer.Add(rotTween);
+                    break;
+                case TweenType.Scale:
+
+                    scaleBuffer = GetBuffer(e, ecb, scaleBuffer);
+                    scaleBuffer.Add(scaleTween);
+                    break;
+                case TweenType.Move:
+                    moveBuffer = GetBuffer(e, ecb, moveBuffer);
+                    moveBuffer.Add(moveTween);
+                    break;
+                default:
+                    break;
+            }
+
+            lastEntity = e;
+            return this;
+
+
+        }
+
+        private void CheckEntity(Entity e)
+        {
+            if (lastEntity != e)
+            {
+                rotBuffer = default;
+                scaleBuffer = default;
+                moveBuffer = default;
+
+            }
+        }
+
+        private DynamicBuffer<TElem> GetBuffer<TElem>(Entity e, in EntityCommandBuffer ecb, DynamicBuffer<TElem> current) where TElem : unmanaged, IBufferElementData
+        {
+            
+            if (e == lastEntity && current.IsCreated)
+            {
+                return current;
+            }
+
+            return ecb.AddBuffer<TElem>(e);
+        }
+
+        private DynamicBuffer<TElem> GetBuffer<TElem>(Entity e, in EntityManager manager, DynamicBuffer<TElem> current) where TElem : unmanaged, IBufferElementData
+        {
+            if (e == lastEntity && current.IsCreated)
+            {
+                return current;
+            }
+
+            return manager.AddBuffer<TElem>(e);
+        }
+
+        private DynamicBuffer<TElem> GetBuffer<TElem>(Entity e, in int sortKey, in EntityCommandBuffer.ParallelWriter ecb, DynamicBuffer<TElem> current) where TElem : unmanaged, IBufferElementData
+        {
+            if (e == lastEntity && current.IsCreated)
+            {
+                return current;
+            }
+
+            return ecb.AddBuffer<TElem>(sortKey, e);
         }
     }
 }

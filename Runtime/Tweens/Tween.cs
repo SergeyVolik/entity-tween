@@ -11,7 +11,7 @@ using Unity.Mathematics;
 namespace Timespawn.EntityTween.Tweens
 {
 
-   
+
 
 
     public static class Tween
@@ -111,11 +111,11 @@ namespace Timespawn.EntityTween.Tweens
             var buffer = commandBuffer.AddBuffer<DelayedMoveTween>(entity);
 
 
-            buffer.Add(CreatedDelayedMoveComponentInternal(start, end, duration, easeDesc, isPingPong, loopCount, startDelay, startTweenTime, startFromEntityPos));
+            buffer.Add(CreateMoveCommand(start, end, duration, easeDesc, isPingPong, loopCount, startDelay, startTweenTime, startFromEntityPos));
 
         }
 
-        internal static DelayedMoveTween CreatedDelayedMoveComponentInternal(
+        internal static DelayedMoveTween CreateMoveCommand(
          in float3 start,
          in float3 end,
          in float duration,
@@ -318,6 +318,42 @@ namespace Timespawn.EntityTween.Tweens
 
             TweenParams tweenParams = new TweenParams(duration, easeDesc.Type, easeDesc.Exponent, isPingPong, loopCount, startDelay);
             entityManager.AddComponentData(entity, new TweenScaleCommand(tweenParams, start, end));
+        }
+
+        internal static DelayedScaleTween CreateScaleCommand(
+            in float3 start,
+            in float3 end,
+            in float duration,
+            in EaseDesc easeDesc = default,
+            in bool isPingPong = false,
+            in int loopCount = 1,
+            in float startDelay = 0.0f,
+            in float startTime = 0.0f)
+        {
+            TweenParams tweenParams = new TweenParams(duration, easeDesc.Type, easeDesc.Exponent, isPingPong, loopCount, startDelay);
+            return new DelayedScaleTween
+            {
+                command = new TweenScaleCommand(tweenParams, start, end),
+                startTime = startTime
+            };
+        }
+
+        internal static DelayedRotationTween CreateRotationCommand(
+           in quaternion start,
+           in quaternion end,
+           in float duration,
+           in EaseDesc easeDesc = default,
+           in bool isPingPong = false,
+           in int loopCount = 1,
+           in float startDelay = 0.0f,
+           in float startTime = 0.0f)
+        {
+            TweenParams tweenParams = new TweenParams(duration, easeDesc.Type, easeDesc.Exponent, isPingPong, loopCount, startDelay);
+            return new DelayedRotationTween
+            {
+                command = new TweenRotationCommand(tweenParams, start, end),
+                startTime = startTime
+            };
         }
 
         public static void Scale(

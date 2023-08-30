@@ -3,7 +3,7 @@ using Unity.Mathematics;
 
 namespace Timespawn.EntityTween.Tweens
 {
-    internal struct TweenScaleCommand : IComponentData, ITweenParams, ITweenInfo<float3>
+    public struct TweenScaleCommand : IComponentData, ITweenParams, ITweenInfo<float3>
     {
         public TweenParams TweenParams;
         public float3 Start;
