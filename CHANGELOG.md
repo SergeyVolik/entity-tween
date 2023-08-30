@@ -1,4 +1,11 @@
 # Changelog
+## [0.6.1] - 2023.08.30
+
+
+### Changed
+- Added Delayed Creation of Tweens
+- Dependency upgrade
+  - Entities 1.0.11
 
 ## [0.6.0] - 2021.08.08
 
