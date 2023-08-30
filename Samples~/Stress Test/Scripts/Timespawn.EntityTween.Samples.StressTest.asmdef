@@ -1,10 +1,13 @@
 {
     "name": "Timespawn.EntityTween.Samples.StressTest",
+    "rootNamespace": "",
     "references": [
         "Timespawn.EntityTween",
         "Unity.Entities",
         "Unity.Entities.Hybrid",
-        "Unity.Mathematics"
+        "Unity.Mathematics",
+        "Unity.Burst",
+        "Unity.Collections"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

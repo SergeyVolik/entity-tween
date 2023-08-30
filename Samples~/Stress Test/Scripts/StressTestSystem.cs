@@ -8,7 +8,7 @@ using Random = Unity.Mathematics.Random;
 
 namespace Timespawn.EntityTween.Samples.StressTest
 {
-    public class StressTestSystem : SystemBase
+    public partial class StressTestSystem : SystemBase
     {
         protected override void OnStartRunning()
         {
@@ -19,7 +19,7 @@ namespace Timespawn.EntityTween.Samples.StressTest
 
         protected override void OnUpdate()
         {
-            EndSimulationEntityCommandBufferSystem endSimECBSystem = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
+            EndSimulationEntityCommandBufferSystem endSimECBSystem = World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
             EntityCommandBuffer.ParallelWriter parallelWriter = endSimECBSystem.CreateCommandBuffer().AsParallelWriter();
             Random random = new Random((uint) Environment.TickCount);
 
