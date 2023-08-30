@@ -1,52 +1,96 @@
+using Codice.Client.BaseCommands;
 using Unity.Burst.Intrinsics;
 using Unity.Collections;
 using Unity.Entities;
+using Unity.Jobs;
 using Unity.Transforms;
+
+[assembly: RegisterGenericJobType(typeof(Timespawn.EntityTween.Tweens.DelayedTweenMoveSystem.AddComponentJob))]
+[assembly: RegisterGenericJobType(typeof(Timespawn.EntityTween.Tweens.DelayedTweenScaleSystem.AddComponentJob))]
+[assembly: RegisterGenericJobType(typeof(Timespawn.EntityTween.Tweens.DelayedTweenRotationSystem.AddComponentJob))]
+
+
 
 namespace Timespawn.EntityTween.Tweens
 {
-    internal struct DelayedMoveTween : IBufferElementData
+    internal partial class DelayedTweenMoveSystem : AddComponentWithDelay<DelayedMoveTween, TweenTranslationCommand> { }
+    internal partial class DelayedTweenScaleSystem : AddComponentWithDelay<DelayedScaleTween, TweenScaleCommand> { }
+    internal partial class DelayedTweenRotationSystem : AddComponentWithDelay<DelayedRotationTween, TweenRotationCommand> { }
+
+    internal interface IDelayedCommand<TTweenCommand> : IBufferElementData where TTweenCommand : unmanaged, IComponentData
+    {
+        public float GetActivationTime();
+        public TTweenCommand GetCommand();
+    }
+
+
+    internal struct DelayedMoveTween : IDelayedCommand<TweenTranslationCommand>, IBufferElementData
     {
         public float startTime;
         public bool StartFromEntityPos;
         public TweenTranslationCommand command;
+
+        public float GetActivationTime() => startTime;
+        public TweenTranslationCommand GetCommand() => command;
     }
 
-    public partial struct DelayedTweenSystem : ISystem
+    internal struct DelayedRotationTween : IDelayedCommand<TweenRotationCommand>, IBufferElementData
+    {
+        public float startTime;
+        public TweenRotationCommand command;
+
+        public float GetActivationTime() => startTime;
+        public TweenRotationCommand GetCommand() => command;
+    }
+
+    internal struct DelayedScaleTween : IDelayedCommand<TweenScaleCommand>, IBufferElementData
+    {
+        public float startTime;
+        public TweenScaleCommand command;
+
+        public float GetActivationTime() => startTime;
+        public TweenScaleCommand GetCommand() => command;
+    }
+
+
+    internal abstract partial class AddComponentWithDelay<TDelayedActivator, TCommand> : SystemBase
+        where TDelayedActivator : unmanaged, IBufferElementData, IDelayedCommand<TCommand>
+        where TCommand : unmanaged, IComponentData
     {
         private EntityQuery query;
 
-        public void OnCreate(ref SystemState state)
+        protected override void OnCreate()
         {
-            query = SystemAPI.QueryBuilder().WithAll<DelayedMoveTween>().Build();
+            query = GetEntityQuery(ComponentType.ReadWrite<TDelayedActivator>());
         }
 
-        public void OnUpdate(ref SystemState state)
+        protected override void OnUpdate()
         {
             var elapsedTime = SystemAPI.Time.ElapsedTime;
 
-            var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter();
+            var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(World.Unmanaged).AsParallelWriter();
 
 
-            state.Dependency = new DelayedMoveTweenJob()
+            Dependency = new AddComponentJob()
             {
                 ecb = ecb,
-                bufferHandle = SystemAPI.GetBufferTypeHandle<DelayedMoveTween>(isReadOnly: false),
+                bufferHandle = GetBufferTypeHandle<TDelayedActivator>(isReadOnly: false),
                 entityHandle = SystemAPI.GetEntityTypeHandle(),
                 elapsedTime = (float)elapsedTime,
-                ltwHandle = SystemAPI.GetComponentTypeHandle<LocalToWorld>(isReadOnly: true)
-            }.ScheduleParallel(query, state.Dependency);
+                //ltwHandle = SystemAPI.GetComponentTypeHandle<LocalToWorld>(isReadOnly: true)
+            }.ScheduleParallel(query, Dependency);
         }
 
-        public partial struct DelayedMoveTweenJob : IJobChunk
+
+        internal partial struct AddComponentJob : IJobChunk
         {
             public float elapsedTime;
 
 
-            internal BufferTypeHandle<DelayedMoveTween> bufferHandle;
+            internal BufferTypeHandle<TDelayedActivator> bufferHandle;
 
-            [ReadOnly]
-            internal ComponentTypeHandle<LocalToWorld> ltwHandle;
+            //[ReadOnly]
+            //internal ComponentTypeHandle<LocalToWorld> ltwHandle;
 
             internal EntityCommandBuffer.ParallelWriter ecb;
 
@@ -54,9 +98,9 @@ namespace Timespawn.EntityTween.Tweens
 
             public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
             {
-                var bufferAccesor = chunk.GetBufferAccessor<DelayedMoveTween>(ref bufferHandle);
+                var bufferAccesor = chunk.GetBufferAccessor(ref bufferHandle);
                 NativeArray<Entity> entities = chunk.GetNativeArray(entityHandle);
-                NativeArray<LocalToWorld> entitiesWorldPos = chunk.GetNativeArray(ref ltwHandle);
+                // NativeArray<LocalToWorld> entitiesWorldPos = chunk.GetNativeArray(ref ltwHandle);
 
                 for (int i = 0; i < entities.Length; i++)
                 {
@@ -66,19 +110,19 @@ namespace Timespawn.EntityTween.Tweens
                     for (int j = 0; j < buffer.Length; j++)
                     {
 
-                        if (buffer[j].startTime <= elapsedTime)
+                        if (buffer[j].GetActivationTime() <= elapsedTime)
                         {
                             index = j;
 
-                            var command = buffer[j].command;
+                            var command = buffer[j].GetCommand();
 
-                            if (buffer[index].StartFromEntityPos)
-                            {
+                            //if (buffer[index].StartFromEntityPos)
+                            //{
 
-                                command.Start = entitiesWorldPos[i].Position;
+                            //    command.Start = entitiesWorldPos[i].Position;
 
 
-                            }
+                            //}
 
                             ecb.AddComponent(unfilteredChunkIndex, entities[i], command);
 

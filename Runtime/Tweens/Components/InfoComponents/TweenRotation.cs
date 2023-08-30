@@ -4,8 +4,7 @@ using Unity.Transforms;
 
 namespace Timespawn.EntityTween.Tweens
 {
-    //TODO: что с єтим делать?
-    //[WriteGroup(typeof(Rotation))]
+   
     public struct TweenRotation : IComponentData, ITweenId, ITweenInfo<quaternion>
     {
         public int Id;
