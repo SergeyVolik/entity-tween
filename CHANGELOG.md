@@ -1,4 +1,13 @@
 # Changelog
+
+## [0.6.1] - 2023.08.30
+
+
+### Changed
+- Add Movement with curve
+- Dependency upgrade
+  - Entities 1.0.14
+
 ## [0.6.1] - 2023.08.30
 
 

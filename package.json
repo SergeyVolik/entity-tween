@@ -1,11 +1,11 @@
 {
   "name": "com.timespawn.entitytween",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "displayName": "Entity Tween",
   "description": "Entity compatible tween library for Unity ECS/DOTS and Project Tiny (DOTS Runtime).",
   "unity": "2022.2",
   "dependencies": {
-    "com.unity.entities": "1.0.11",
+    "com.unity.entities": "1.0.14",
     "com.unity.burst": "1.8.4",
     "com.unity.mathematics": "1.2.6"
   },
