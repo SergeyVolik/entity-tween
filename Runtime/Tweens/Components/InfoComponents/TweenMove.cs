@@ -1,22 +1,27 @@
 ﻿using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Transforms;
+
 
 namespace Timespawn.EntityTween.Tweens
 {
-    //TODO: возможен баг
-    //[WriteGroup(typeof(Translation))]
-    public struct TweenTranslation : IComponentData, ITweenId, ITweenInfo<float3>
+   
+    public struct TweenMove : IComponentData, ITweenId, ITweenInfo<float3>
     {
         public int Id;
         public float3 Start;
         public float3 End;
-
-        public TweenTranslation(in int id, in float3 start, in float3 end)
+        public BlobAssetReference<CurveECS> Curve;
+        public TweenMove(in int id, in float3 start, in float3 end, BlobAssetReference<CurveECS> curve = default)
         {
             Id = id;
             Start = start;
             End = end;
+            Curve = curve;
+        }
+
+        public bool HasCurve()
+        {
+            return Curve.IsCreated;
         }
 
         public void SetTweenId(in int id)

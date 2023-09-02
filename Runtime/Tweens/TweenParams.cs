@@ -1,4 +1,6 @@
 ﻿using Timespawn.EntityTween.Math;
+using Timespawn.EntityTween.Tweens;
+using Unity.Entities;
 
 namespace Timespawn.EntityTween
 {
@@ -11,6 +13,7 @@ namespace Timespawn.EntityTween
         public byte LoopCount;
         public float StartDelay;
         public bool FromEntityPos;
+        public BlobAssetReference<CurveECS> Curve;
         public TweenParams(
             in float duration, 
             in EaseType easeType = EaseType.Linear, 
@@ -18,7 +21,8 @@ namespace Timespawn.EntityTween
             in bool isPingPong = false, 
             in int loopCount = 1, 
             in float startDelay = 0.0f,
-            in bool fromEntityPos = false)
+            in bool fromEntityPos = false,
+             BlobAssetReference<CurveECS> curve = default)
         {
             Duration = duration;
             EaseType = easeType;
@@ -27,6 +31,7 @@ namespace Timespawn.EntityTween
             LoopCount = (byte) loopCount;
             StartDelay = startDelay;
             FromEntityPos = fromEntityPos;
+            Curve = curve;
         }
 
         public override string ToString()

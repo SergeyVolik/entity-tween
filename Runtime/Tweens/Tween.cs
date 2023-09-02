@@ -66,7 +66,7 @@ namespace Timespawn.EntityTween.Tweens
             }
 
             TweenParams tweenParams = new TweenParams(duration, easeDesc.Type, easeDesc.Exponent, isPingPong, loopCount, startDelay);
-            entityManager.AddComponentData(entity, new TweenTranslationCommand(tweenParams, start, end));
+            entityManager.AddComponentData(entity, new TweenMoveCommand(tweenParams, start, end));
         }
 
         public static void Move(
@@ -86,7 +86,7 @@ namespace Timespawn.EntityTween.Tweens
             }
 
             TweenParams tweenParams = new TweenParams(duration, easeDesc.Type, easeDesc.Exponent, isPingPong, loopCount, startDelay);
-            commandBuffer.AddComponent(entity, new TweenTranslationCommand(tweenParams, start, end));
+            commandBuffer.AddComponent(entity, new TweenMoveCommand(tweenParams, start, end));
         }
 
         public static void DelayedMove(
@@ -101,7 +101,8 @@ namespace Timespawn.EntityTween.Tweens
           in int loopCount = 1,
           in float startDelay = 0.0f,
           in float startTweenTime = 0.0f,
-          in bool startFromEntityPos = false)
+          in bool startFromEntityPos = false,
+          in BlobAssetReference<CurveECS> curve = default)
         {
             if (!CheckParams(easeDesc.Exponent, loopCount))
             {
@@ -111,7 +112,7 @@ namespace Timespawn.EntityTween.Tweens
             var buffer = commandBuffer.AddBuffer<DelayedMoveTween>(entity);
 
 
-            buffer.Add(CreateMoveCommand(start, end, duration, easeDesc, isPingPong, loopCount, startDelay, startTweenTime, startFromEntityPos));
+            buffer.Add(CreateMoveCommand(start, end, duration, easeDesc, isPingPong, loopCount, startDelay, startTweenTime, startFromEntityPos, curve));
 
         }
 
@@ -124,7 +125,8 @@ namespace Timespawn.EntityTween.Tweens
          in int loopCount = 1,
          in float startDelay = 0.0f,
          in float startTweenTime = 0.0f,
-         in bool startFromEntityPos = false)
+         in bool startFromEntityPos = false,
+         BlobAssetReference<CurveECS> curve = default)
         {
             if (!CheckParams(easeDesc.Exponent, loopCount))
             {
@@ -133,7 +135,7 @@ namespace Timespawn.EntityTween.Tweens
 
             return new DelayedMoveTween
             {
-                command = CreateMoveCommandInternal(start, end, duration, easeDesc, isPingPong, loopCount, startDelay),
+                command = CreateMoveCommandInternal(start, end, duration, easeDesc, isPingPong, loopCount, startDelay, curve),
                 StartFromEntityPos = startFromEntityPos,
                 startTime = startTweenTime
 
@@ -141,18 +143,19 @@ namespace Timespawn.EntityTween.Tweens
 
         }
 
-        internal static TweenTranslationCommand CreateMoveCommandInternal(
+        internal static TweenMoveCommand CreateMoveCommandInternal(
            in float3 start,
            in float3 end,
            in float duration,
            in EaseDesc easeDesc = default,
            in bool isPingPong = false,
            in int loopCount = 1,
-           in float startDelay = 0.0f)
+           in float startDelay = 0.0f,
+           BlobAssetReference<CurveECS> curve = default)
         {
 
-            TweenParams tweenParams = new TweenParams(duration, easeDesc.Type, easeDesc.Exponent, isPingPong, loopCount, startDelay);
-            return new TweenTranslationCommand(tweenParams, start, end);
+            TweenParams tweenParams = new TweenParams(duration, easeDesc.Type, easeDesc.Exponent, isPingPong, loopCount, startDelay, curve: curve);
+            return new TweenMoveCommand(tweenParams, start, end);
         }
 
 
@@ -174,7 +177,7 @@ namespace Timespawn.EntityTween.Tweens
             }
 
             TweenParams tweenParams = new TweenParams(duration, easeDesc.Type, easeDesc.Exponent, isPingPong, loopCount, startDelay);
-            parallelWriter.AddComponent(sortKey, entity, new TweenTranslationCommand(tweenParams, start, end));
+            parallelWriter.AddComponent(sortKey, entity, new TweenMoveCommand(tweenParams, start, end));
         }
 
         public static void Rotate(

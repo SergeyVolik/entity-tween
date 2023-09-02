@@ -12,7 +12,7 @@ using Unity.Transforms;
 
 namespace Timespawn.EntityTween.Tweens
 {
-    internal partial class DelayedTweenMoveSystem : AddComponentWithDelay<DelayedMoveTween, TweenTranslationCommand> { }
+    internal partial class DelayedTweenMoveSystem : AddComponentWithDelay<DelayedMoveTween, TweenMoveCommand> { }
     internal partial class DelayedTweenScaleSystem : AddComponentWithDelay<DelayedScaleTween, TweenScaleCommand> { }
     internal partial class DelayedTweenRotationSystem : AddComponentWithDelay<DelayedRotationTween, TweenRotationCommand> { }
 
@@ -23,14 +23,14 @@ namespace Timespawn.EntityTween.Tweens
     }
 
 
-    internal struct DelayedMoveTween : IDelayedCommand<TweenTranslationCommand>, IBufferElementData
+    internal struct DelayedMoveTween : IDelayedCommand<TweenMoveCommand>, IBufferElementData
     {
         public float startTime;
         public bool StartFromEntityPos;
-        public TweenTranslationCommand command;
+        public TweenMoveCommand command;
 
         public float GetActivationTime() => startTime;
-        public TweenTranslationCommand GetCommand() => command;
+        public TweenMoveCommand GetCommand() => command;
     }
 
     internal struct DelayedRotationTween : IDelayedCommand<TweenRotationCommand>, IBufferElementData
@@ -88,9 +88,6 @@ namespace Timespawn.EntityTween.Tweens
 
             internal BufferTypeHandle<TDelayedActivator> bufferHandle;
 
-            //[ReadOnly]
-            //internal ComponentTypeHandle<LocalToWorld> ltwHandle;
-
             internal EntityCommandBuffer.ParallelWriter ecb;
 
             [ReadOnly] internal EntityTypeHandle entityHandle;
@@ -99,7 +96,7 @@ namespace Timespawn.EntityTween.Tweens
             {
                 var bufferAccesor = chunk.GetBufferAccessor(ref bufferHandle);
                 NativeArray<Entity> entities = chunk.GetNativeArray(entityHandle);
-                // NativeArray<LocalToWorld> entitiesWorldPos = chunk.GetNativeArray(ref ltwHandle);
+
 
                 for (int i = 0; i < entities.Length; i++)
                 {
@@ -114,14 +111,6 @@ namespace Timespawn.EntityTween.Tweens
                             index = j;
 
                             var command = buffer[j].GetCommand();
-
-                            //if (buffer[index].StartFromEntityPos)
-                            //{
-
-                            //    command.Start = entitiesWorldPos[i].Position;
-
-
-                            //}
 
                             ecb.AddComponent(unfilteredChunkIndex, entities[i], command);
 

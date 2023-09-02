@@ -58,6 +58,8 @@ namespace Timespawn.EntityTween.Tweens
                     }
 
                     TweenState tween = new TweenState(command.GetTweenParams(), ElapsedTime, chunkIndex, TweenInfoTypeIndex);
+
+                    
                     ParallelWriter.AppendToBuffer(chunkIndex, entity, tween);
 
                     TTweenInfo info = default;
@@ -98,7 +100,7 @@ namespace Timespawn.EntityTween.Tweens
         }
     }
 
-    internal partial class TweenTranslationGenerateSystem : TweenGenerateSystem<TweenTranslationCommand, TweenTranslation, float3> {}
+    internal partial class TweenTranslationGenerateSystem : TweenGenerateSystem<TweenMoveCommand, TweenMove, float3> {}
     internal partial class TweenRotationGenerateSystem : TweenGenerateSystem<TweenRotationCommand, TweenRotation, quaternion> {}
     internal partial class TweenScaleGenerateSystem : TweenGenerateSystem<TweenScaleCommand, TweenScale, float3> {}
 

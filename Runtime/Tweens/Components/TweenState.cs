@@ -10,6 +10,7 @@ namespace Timespawn.EntityTween.Tweens
 
         public int Id;
         public EaseType EaseType;
+        public BlobAssetReference<CurveECS> Curve;
         public byte EaseExponent;
         public float Duration;
         public float Time;
@@ -27,20 +28,21 @@ namespace Timespawn.EntityTween.Tweens
             in float delayedStartTime, 
             in double elapsedTime, 
             in int chunkIndex, 
-            in int tweenInfoTypeIndex) : this()
+            in int tweenInfoTypeIndex,
+            BlobAssetReference<CurveECS> curve = default) : this()
         {
             EaseType = easeType;
             EaseExponent = easeExponent;
             Duration = duration;
             IsPingPong = isPingPong;
             LoopCount = loopCount;
-
+            Curve = curve;
             Time = -math.max(delayedStartTime, 0.0f);
             Id = GenerateId(elapsedTime, chunkIndex, tweenInfoTypeIndex);
         }
 
         internal TweenState(in TweenParams tweenParams, in double elapsedTime, in int chunkIndex, in int tweenInfoTypeIndex)
-            : this(tweenParams.EaseType, tweenParams.EaseExponent, tweenParams.Duration, tweenParams.IsPingPong, tweenParams.LoopCount, tweenParams.StartDelay, elapsedTime, chunkIndex, tweenInfoTypeIndex)
+            : this(tweenParams.EaseType, tweenParams.EaseExponent, tweenParams.Duration, tweenParams.IsPingPong, tweenParams.LoopCount, tweenParams.StartDelay, elapsedTime, chunkIndex, tweenInfoTypeIndex, tweenParams.Curve)
         {
         }
 

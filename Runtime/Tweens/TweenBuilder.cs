@@ -40,10 +40,10 @@ namespace Timespawn.EntityTween.Tweens
          in int loopCount = 1,
          in float startDelay = 0.0f,
          in float startTweenTime = 0.0f,
-         in bool startFromEntityPos = false)
+         in BlobAssetReference<CurveECS> curve = default)
         {
 
-            moveTween = Tween.CreateMoveCommand(start, end, duration, easeDesc, isPingPong, loopCount, startDelay, startTweenTime: startTweenTime);
+            moveTween = Tween.CreateMoveCommand(start, end, duration, easeDesc, isPingPong, loopCount, startDelay, startTweenTime: startTweenTime, curve: curve);
             type = TweenType.Move;
             return this;
         }

@@ -110,7 +110,7 @@ namespace Timespawn.EntityTween.Tweens
         }
     }
 
-    internal partial class TweenTranslationDestroySystem : TweenDestroySystem<TweenTranslation> {}
+    internal partial class TweenTranslationDestroySystem : TweenDestroySystem<TweenMove> {}
     internal partial class TweenRotationDestroySystem : TweenDestroySystem<TweenRotation> {}
     internal partial class TweenScaleDestroySystem : TweenDestroySystem<TweenScale> {}
 
