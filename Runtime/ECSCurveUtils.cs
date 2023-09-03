@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -32,6 +33,34 @@ namespace Timespawn.EntityTween.Tweens
 
     public static class ECSCurveUtils
     {
+
+        public static void DrawGizmos(ECSCurveBakeData curveData, Vector3 start, Vector3 end)
+        {
+            List<Vector3> points = new List<Vector3>();
+
+            points.Add(start);
+
+            for (var i = 0; i < curveData.samples; i++)
+            {
+                var samplePoint = (float)i / (curveData.samples - 1);
+                var sampleValue = curveData.curve.Evaluate(samplePoint);
+                var point = Vector3.Lerp(start, end, samplePoint);
+
+                point.y = math.lerp(start.y, end.y, sampleValue);
+                points.Add(point);
+
+                Gizmos.DrawSphere(point, 0.1f);
+            }
+
+            if (points.Count % 2 != 0)
+            {
+                points.Add(end);
+            }
+
+            
+            Gizmos.DrawLineStrip(points.ToArray(), false);
+        }
+
         public static BlobAssetReference<CurveECS> Bake(this AnimationCurve curve, int samples)
         {
             return CreateCurve(new ECSCurveBakeData

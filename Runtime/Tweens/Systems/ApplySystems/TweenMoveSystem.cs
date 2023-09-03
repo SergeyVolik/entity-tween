@@ -20,12 +20,13 @@ namespace Timespawn.EntityTween
                         if (tween.Id == tweenInfo.Id)
                         {
                             var pos = math.lerp(tweenInfo.Start, tweenInfo.End, tween.EasePercentage);
-                        
+
                             if (tween.Curve.IsCreated)
                             {
                                 var dif = tweenInfo.End - tweenInfo.Start;
                                 var value = tween.Curve.Value.GetValueAtTime(tween.EasePercentage);
                                 pos.y = math.lerp(tweenInfo.Start.y, tweenInfo.End.y, value);
+                              
                             }
 
                             translation.Position = pos;
