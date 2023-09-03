@@ -30,8 +30,17 @@ namespace Timespawn.EntityTween.Tweens
         public int samples;
     }
 
-    public static class ECSCuverUtils
+    public static class ECSCurveUtils
     {
+        public static BlobAssetReference<CurveECS> Bake(this AnimationCurve curve, int samples)
+        {
+            return CreateCurve(new ECSCurveBakeData
+            {
+                curve = curve,
+                samples = samples
+            });
+        }
+
         public static BlobAssetReference<CurveECS> CreateCurve(ECSCurveBakeData data)
         {
             var numberOfSamples = data.samples;
