@@ -13,7 +13,7 @@ namespace Timespawn.EntityTween
         public byte LoopCount;
         public float StartDelay;
         public bool FromEntityPos;
-        public BlobAssetReference<CurveECS> Curve;
+        public CurvesXYZ Curve;
         public TweenParams(
             in float duration, 
             in EaseType easeType = EaseType.Linear, 
@@ -22,7 +22,7 @@ namespace Timespawn.EntityTween
             in int loopCount = 1, 
             in float startDelay = 0.0f,
             in bool fromEntityPos = false,
-             BlobAssetReference<CurveECS> curve = default)
+             CurvesXYZ curve = default)
         {
             Duration = duration;
             EaseType = easeType;

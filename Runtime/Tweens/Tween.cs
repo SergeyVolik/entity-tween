@@ -102,7 +102,7 @@ namespace Timespawn.EntityTween.Tweens
           in float startDelay = 0.0f,
           in float startTweenTime = 0.0f,
           in bool startFromEntityPos = false,
-          in BlobAssetReference<CurveECS> curve = default)
+          in CurvesXYZ curve = default)
         {
             if (!CheckParams(easeDesc.Exponent, loopCount))
             {
@@ -126,7 +126,7 @@ namespace Timespawn.EntityTween.Tweens
          in float startDelay = 0.0f,
          in float startTweenTime = 0.0f,
          in bool startFromEntityPos = false,
-         BlobAssetReference<CurveECS> curve = default)
+         CurvesXYZ curve = default)
         {
             if (!CheckParams(easeDesc.Exponent, loopCount))
             {
@@ -151,7 +151,7 @@ namespace Timespawn.EntityTween.Tweens
            in bool isPingPong = false,
            in int loopCount = 1,
            in float startDelay = 0.0f,
-           BlobAssetReference<CurveECS> curve = default)
+           CurvesXYZ curve = default)
         {
 
             TweenParams tweenParams = new TweenParams(duration, easeDesc.Type, easeDesc.Exponent, isPingPong, loopCount, startDelay, curve: curve);

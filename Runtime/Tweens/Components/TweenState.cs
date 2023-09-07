@@ -10,7 +10,7 @@ namespace Timespawn.EntityTween.Tweens
 
         public int Id;
         public EaseType EaseType;
-        public BlobAssetReference<CurveECS> Curve;
+        public CurvesXYZ Curve;
         public byte EaseExponent;
         public float Duration;
         public float Time;
@@ -29,7 +29,7 @@ namespace Timespawn.EntityTween.Tweens
             in double elapsedTime, 
             in int chunkIndex, 
             in int tweenInfoTypeIndex,
-            BlobAssetReference<CurveECS> curve = default) : this()
+            CurvesXYZ curve = default) : this()
         {
             EaseType = easeType;
             EaseExponent = easeExponent;
