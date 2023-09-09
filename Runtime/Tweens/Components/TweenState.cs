@@ -10,8 +10,6 @@ namespace Timespawn.EntityTween.Tweens
 
         public int Id;
         public EaseType EaseType;
-        public CurvesXYZ Curve;
-        public byte EaseExponent;
         public float Duration;
         public float Time;
         public float EasePercentage;
@@ -21,28 +19,24 @@ namespace Timespawn.EntityTween.Tweens
 
         internal TweenState(
             in EaseType easeType, 
-            in byte easeExponent, 
             in float duration, 
             in bool isPingPong, 
             in byte loopCount, 
             in float delayedStartTime, 
             in double elapsedTime, 
             in int chunkIndex, 
-            in int tweenInfoTypeIndex,
-            CurvesXYZ curve = default) : this()
+            in int tweenInfoTypeIndex) : this()
         {
             EaseType = easeType;
-            EaseExponent = easeExponent;
             Duration = duration;
             IsPingPong = isPingPong;
             LoopCount = loopCount;
-            Curve = curve;
             Time = -math.max(delayedStartTime, 0.0f);
             Id = GenerateId(elapsedTime, chunkIndex, tweenInfoTypeIndex);
         }
 
         internal TweenState(in TweenParams tweenParams, in double elapsedTime, in int chunkIndex, in int tweenInfoTypeIndex)
-            : this(tweenParams.EaseType, tweenParams.EaseExponent, tweenParams.Duration, tweenParams.IsPingPong, tweenParams.LoopCount, tweenParams.StartDelay, elapsedTime, chunkIndex, tweenInfoTypeIndex, tweenParams.Curve)
+            : this(tweenParams.EaseType, tweenParams.Duration, tweenParams.IsPingPong, tweenParams.LoopCount, tweenParams.StartDelay, elapsedTime, chunkIndex, tweenInfoTypeIndex)
         {
         }
 
@@ -71,8 +65,7 @@ namespace Timespawn.EntityTween.Tweens
         {
             unchecked
             {
-                int hashCode = (int) EaseType;
-                hashCode = (hashCode * 397) ^ EaseExponent.GetHashCode();
+                int hashCode = (int) EaseType;               
                 hashCode = (hashCode * 397) ^ Duration.GetHashCode();
                 hashCode = (hashCode * 397) ^ IsPingPong.GetHashCode();
                 hashCode = (hashCode * 397) ^ LoopCount.GetHashCode();

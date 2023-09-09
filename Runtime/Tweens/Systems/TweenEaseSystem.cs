@@ -21,8 +21,10 @@ namespace Timespawn.EntityTween
                         tween.Time += tween.IsReverting ? -deltaTime : deltaTime;
 
                         float normalizedTime = tween.GetNormalizedTime();
-                        tween.EasePercentage = Ease.CalculatePercentage(normalizedTime, tween.EaseType, tween.EaseExponent);
 
+                        
+                        tween.EasePercentage = Ease.CalculatePercentage(normalizedTime, tween.EaseType);
+                        UnityEngine.Debug.Log($"{tween.EaseType} {tween.EasePercentage}");
                         tweenBuffer[i] = tween;
                     }
                 }).ScheduleParallel();

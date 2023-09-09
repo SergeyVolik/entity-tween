@@ -18,25 +18,7 @@ namespace Timespawn.EntityTween
                     {
                         TweenState tween = tweenBuffer[i];
                         if (tween.Id == tweenInfo.Id)
-                        {
-
-
-                            if (tween.Curve.IsValid())
-                            {
-                             
-                                var valueX = tween.Curve.curveX.Value.GetValueAtTime(tween.EasePercentage);
-                                var valueY = tween.Curve.curveY.Value.GetValueAtTime(tween.EasePercentage);
-                                var valueZ = tween.Curve.curveZ.Value.GetValueAtTime(tween.EasePercentage);
-
-
-                                var x = math.lerp(tweenInfo.Start.x, tweenInfo.End.x, valueX);
-                                var y = math.lerp(tweenInfo.Start.y, tweenInfo.End.y, valueY);
-                                var z = math.lerp(tweenInfo.Start.z, tweenInfo.End.z, valueZ);
-
-                                translation.Position = new float3(x, y, z);
-
-                                break;
-                            }
+                        {         
 
                             var pos = math.lerp(tweenInfo.Start, tweenInfo.End, tween.EasePercentage);
                             translation.Position = pos;
