@@ -1,6 +1,12 @@
 # Changelog
 
-## [0.6.1] - 2023.08.30
+## [0.6.3] - 2023.09.09
+
+
+### Changed
+- Added New Ease functions
+
+## [0.6.2] - 2023.08.30
 
 
 ### Changed
