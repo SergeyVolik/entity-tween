@@ -16,44 +16,75 @@ namespace Timespawn.EntityTween.Tweens
     internal partial class DelayedTweenScaleSystem : AddComponentWithDelay<DelayedScaleTween, TweenScaleCommand> { }
     internal partial class DelayedTweenRotationSystem : AddComponentWithDelay<DelayedRotationTween, TweenRotationCommand> { }
 
-    internal interface IDelayedCommand<TTweenCommand> : IBufferElementData where TTweenCommand : unmanaged, IComponentData
+    public interface IDelayTime
     {
         public float GetActivationTime();
-        public TTweenCommand GetCommand();
+      
+    }
+
+    public interface IEntityLink
+    {
+        public Entity GetEntityRef();
+
+    }
+
+    public interface IDelayedRemoveComponentDataCommand<TComponent> : IComponentData, IDelayTime, IEntityLink where TComponent : unmanaged, IComponentData
+    {
+       
+    }
+
+    public interface IDelayedEnableDisableComponentDataCommand<TComponent> : IComponentData, IDelayTime, IEntityLink where TComponent : unmanaged, IComponentData, IEnableableComponent
+    {
+
+    }
+
+    public interface IDelayedAddComponentDataCommand<TComponent> : IComponentData, IDelayTime, IEntityLink where TComponent : unmanaged, IComponentData
+    {      
+        public TComponent GetCommand();
+
+        
     }
 
 
-    internal struct DelayedMoveTween : IDelayedCommand<TweenMoveCommand>, IBufferElementData
+    internal struct DelayedMoveTween : IDelayedAddComponentDataCommand<TweenMoveCommand>
     {
         public float startTime;
         public bool StartFromEntityPos;
         public TweenMoveCommand command;
-
+      
         public float GetActivationTime() => startTime;
         public TweenMoveCommand GetCommand() => command;
+        public Entity targetEntity;
+        public Entity GetEntityRef() => targetEntity;
     }
 
-    internal struct DelayedRotationTween : IDelayedCommand<TweenRotationCommand>, IBufferElementData
+    internal struct DelayedRotationTween : IDelayedAddComponentDataCommand<TweenRotationCommand>
     {
         public float startTime;
         public TweenRotationCommand command;
 
         public float GetActivationTime() => startTime;
         public TweenRotationCommand GetCommand() => command;
+
+        public Entity targetEntity;
+        public Entity GetEntityRef() => targetEntity;
     }
 
-    public struct DelayedScaleTween : IDelayedCommand<TweenScaleCommand>, IBufferElementData
+    public struct DelayedScaleTween : IDelayedAddComponentDataCommand<TweenScaleCommand>
     {
         public float startTime;
         public TweenScaleCommand command;
 
         public float GetActivationTime() => startTime;
         public TweenScaleCommand GetCommand() => command;
+
+        public Entity targetEntity;
+        public Entity GetEntityRef() => targetEntity;
     }
 
 
-    internal abstract partial class AddComponentWithDelay<TDelayedActivator, TCommand> : SystemBase
-        where TDelayedActivator : unmanaged, IBufferElementData, IDelayedCommand<TCommand>
+    public abstract partial class AddComponentWithDelay<TDelayedActivator, TCommand> : SystemBase
+        where TDelayedActivator : unmanaged, IComponentData, IDelayedAddComponentDataCommand<TCommand>
         where TCommand : unmanaged, IComponentData
     {
         private EntityQuery query;
@@ -73,10 +104,9 @@ namespace Timespawn.EntityTween.Tweens
             Dependency = new AddComponentJob()
             {
                 ecb = ecb,
-                bufferHandle = GetBufferTypeHandle<TDelayedActivator>(isReadOnly: false),
+                typeHandle = GetComponentTypeHandle<TDelayedActivator>(isReadOnly: false),
                 entityHandle = SystemAPI.GetEntityTypeHandle(),
                 elapsedTime = (float)elapsedTime,
-                //ltwHandle = SystemAPI.GetComponentTypeHandle<LocalToWorld>(isReadOnly: true)
             }.ScheduleParallel(query, Dependency);
         }
 
@@ -86,7 +116,7 @@ namespace Timespawn.EntityTween.Tweens
             public float elapsedTime;
 
 
-            internal BufferTypeHandle<TDelayedActivator> bufferHandle;
+            internal ComponentTypeHandle<TDelayedActivator> typeHandle;
 
             internal EntityCommandBuffer.ParallelWriter ecb;
 
@@ -94,33 +124,22 @@ namespace Timespawn.EntityTween.Tweens
 
             public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
             {
-                var bufferAccesor = chunk.GetBufferAccessor(ref bufferHandle);
+                
+                var components = chunk.GetNativeArray(ref typeHandle);
                 NativeArray<Entity> entities = chunk.GetNativeArray(entityHandle);
 
 
                 for (int i = 0; i < entities.Length; i++)
                 {
-                    int index = -1;
-                    var buffer = bufferAccesor[i];
+                    var compData = components[i];
 
-                    for (int j = 0; j < buffer.Length; j++)
+                    if (compData.GetActivationTime() <= elapsedTime)
                     {
+                        var command = compData.GetCommand();
 
-                        if (buffer[j].GetActivationTime() <= elapsedTime)
-                        {
-                            index = j;
+                        ecb.AddComponent(unfilteredChunkIndex, compData.GetEntityRef(), command);
 
-                            var command = buffer[j].GetCommand();
-
-                            ecb.AddComponent(unfilteredChunkIndex, entities[i], command);
-
-                            break;
-                        }
-                    }
-
-                    if (index != -1)
-                    {
-                        buffer.RemoveAtSwapBack(index);
+                        ecb.DestroyEntity(unfilteredChunkIndex, entities[i]);
                     }
 
                 }

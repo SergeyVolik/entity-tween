@@ -60,7 +60,7 @@ namespace Timespawn.EntityTween.Tweens
             in int loopCount = 1,
             in float startDelay = 0.0f)
         {
-            
+
 
             TweenParams tweenParams = new TweenParams(duration, easeDesc, isPingPong, loopCount, startDelay);
             entityManager.AddComponentData(entity, new TweenMoveCommand(tweenParams, start, end));
@@ -77,7 +77,7 @@ namespace Timespawn.EntityTween.Tweens
             in int loopCount = 1,
             in float startDelay = 0.0f)
         {
-           
+
 
             TweenParams tweenParams = new TweenParams(duration, easeDesc, isPingPong, loopCount, startDelay);
             commandBuffer.AddComponent(entity, new TweenMoveCommand(tweenParams, start, end));
@@ -85,7 +85,6 @@ namespace Timespawn.EntityTween.Tweens
 
         public static void DelayedMove(
           in EntityCommandBuffer commandBuffer,
-
           in Entity entity,
           in float3 start,
           in float3 end,
@@ -98,15 +97,13 @@ namespace Timespawn.EntityTween.Tweens
           in bool startFromEntityPos = false,
           in CurvesXYZ curve = default)
         {
-           
-            var buffer = commandBuffer.AddBuffer<DelayedMoveTween>(entity);
-
-
-            buffer.Add(CreateMoveCommand(start, end, duration, easeDesc, isPingPong, loopCount, startDelay, startTweenTime, startFromEntityPos, curve));
+            var timerEntity = commandBuffer.CreateEntity();
+            commandBuffer.AddComponent(timerEntity, CreateMoveCommand(entity, start, end, duration, easeDesc, isPingPong, loopCount, startDelay, startTweenTime, startFromEntityPos, curve));
 
         }
 
         internal static DelayedMoveTween CreateMoveCommand(
+         in Entity targetEntity,
          in float3 start,
          in float3 end,
          in float duration,
@@ -118,7 +115,7 @@ namespace Timespawn.EntityTween.Tweens
          in bool startFromEntityPos = false,
          CurvesXYZ curve = default)
         {
-           
+
 
             return new DelayedMoveTween
             {
@@ -131,6 +128,7 @@ namespace Timespawn.EntityTween.Tweens
         }
 
         internal static TweenMoveCommand CreateMoveCommandInternal(
+
            in float3 start,
            in float3 end,
            in float duration,
@@ -158,7 +156,7 @@ namespace Timespawn.EntityTween.Tweens
             in int loopCount = 1,
             in float startDelay = 0.0f)
         {
-           
+
 
             TweenParams tweenParams = new TweenParams(duration, easeDesc, isPingPong, loopCount, startDelay);
             parallelWriter.AddComponent(sortKey, entity, new TweenMoveCommand(tweenParams, start, end));
@@ -206,7 +204,7 @@ namespace Timespawn.EntityTween.Tweens
             in int loopCount = 1,
             in float startDelay = 0.0f)
         {
-           
+
 
             TweenParams tweenParams = new TweenParams(duration, easeDesc, isPingPong, loopCount, startDelay);
             entityManager.AddComponentData(entity, new TweenRotationCommand(tweenParams, start, end));
@@ -223,7 +221,7 @@ namespace Timespawn.EntityTween.Tweens
             in int loopCount = 1,
             in float startDelay = 0.0f)
         {
-           
+
             TweenParams tweenParams = new TweenParams(duration, easeDesc, isPingPong, loopCount, startDelay);
             commandBuffer.AddComponent(entity, new TweenRotationCommand(tweenParams, start, end));
         }
@@ -240,7 +238,7 @@ namespace Timespawn.EntityTween.Tweens
             in int loopCount = 1,
             in float startDelay = 0.0f)
         {
-           
+
             TweenParams tweenParams = new TweenParams(duration, easeDesc, isPingPong, loopCount, startDelay);
             parallelWriter.AddComponent(sortKey, entity, new TweenRotationCommand(tweenParams, start, end));
         }
@@ -287,13 +285,14 @@ namespace Timespawn.EntityTween.Tweens
             in int loopCount = 1,
             in float startDelay = 0.0f)
         {
-           
+
 
             TweenParams tweenParams = new TweenParams(duration, easeDesc, isPingPong, loopCount, startDelay);
             entityManager.AddComponentData(entity, new TweenScaleCommand(tweenParams, start, end));
         }
 
         internal static DelayedScaleTween CreateScaleCommand(
+            in Entity targetEntity,
             in float3 start,
             in float3 end,
             in float duration,
@@ -307,11 +306,13 @@ namespace Timespawn.EntityTween.Tweens
             return new DelayedScaleTween
             {
                 command = new TweenScaleCommand(tweenParams, start, end),
-                startTime = startTime
+                startTime = startTime,
+                targetEntity = targetEntity
             };
         }
 
         internal static DelayedRotationTween CreateRotationCommand(
+           in Entity targetEntity,
            in quaternion start,
            in quaternion end,
            in float duration,
@@ -325,7 +326,8 @@ namespace Timespawn.EntityTween.Tweens
             return new DelayedRotationTween
             {
                 command = new TweenRotationCommand(tweenParams, start, end),
-                startTime = startTime
+                startTime = startTime,
+                targetEntity = targetEntity
             };
         }
 
@@ -340,7 +342,7 @@ namespace Timespawn.EntityTween.Tweens
             in int loopCount = 1,
             in float startDelay = 0.0f)
         {
-           
+
             TweenParams tweenParams = new TweenParams(duration, easeDesc, isPingPong, loopCount, startDelay);
             commandBuffer.AddComponent(entity, new TweenScaleCommand(tweenParams, start, end));
         }
@@ -357,7 +359,7 @@ namespace Timespawn.EntityTween.Tweens
             in int loopCount = 1,
             in float startDelay = 0.0f)
         {
-            
+
             TweenParams tweenParams = new TweenParams(duration, easeDesc, isPingPong, loopCount, startDelay);
             parallelWriter.AddComponent(sortKey, entity, new TweenScaleCommand(tweenParams, start, end));
         }

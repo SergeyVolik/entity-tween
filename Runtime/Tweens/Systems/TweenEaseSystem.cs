@@ -24,7 +24,7 @@ namespace Timespawn.EntityTween
 
                         
                         tween.EasePercentage = Ease.CalculatePercentage(normalizedTime, tween.EaseType);
-                        UnityEngine.Debug.Log($"{tween.EaseType} {tween.EasePercentage}");
+                        //UnityEngine.Debug.Log($"{tween.EaseType} {tween.EasePercentage}");
                         tweenBuffer[i] = tween;
                     }
                 }).ScheduleParallel();
