@@ -28,14 +28,14 @@ namespace Timespawn.EntityTween.Tweens
 
     }
 
-    public interface IDelayedRemoveComponentDataCommand<TComponent> : IComponentData, IDelayTime, IEntityLink where TComponent : unmanaged, IComponentData
+    public interface IDelayedRemoveComponentDataCommand : IComponentData, IDelayTime, IEntityLink
     {
        
     }
 
-    public interface IDelayedEnableDisableComponentDataCommand<TComponent> : IComponentData, IDelayTime, IEntityLink where TComponent : unmanaged, IComponentData, IEnableableComponent
+    public interface IDelayedEnableDisableComponentDataCommand : IComponentData, IDelayTime, IEntityLink
     {
-
+        public bool GetEnableState();
     }
 
     public interface IDelayedAddComponentDataCommand<TComponent> : IComponentData, IDelayTime, IEntityLink where TComponent : unmanaged, IComponentData
@@ -81,7 +81,133 @@ namespace Timespawn.EntityTween.Tweens
         public Entity targetEntity;
         public Entity GetEntityRef() => targetEntity;
     }
+    public abstract partial class RemoveComponentWithDelaySystem<TDelayedActivator, TToRemove> : SystemBase
+        where TDelayedActivator : unmanaged, IComponentData, IDelayedRemoveComponentDataCommand
+        where TToRemove : unmanaged, IComponentData
+    {
+        private EntityQuery query;
 
+        protected override void OnCreate()
+        {
+            query = GetEntityQuery(ComponentType.ReadWrite<TDelayedActivator>());
+        }
+
+        protected override void OnUpdate()
+        {
+            var elapsedTime = SystemAPI.Time.ElapsedTime;
+
+            var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(World.Unmanaged).AsParallelWriter();
+
+
+            Dependency = new RemoveComponentJob()
+            {
+                ecb = ecb,
+                typeHandle = GetComponentTypeHandle<TDelayedActivator>(isReadOnly: false),
+                entityHandle = SystemAPI.GetEntityTypeHandle(),
+                elapsedTime = (float)elapsedTime,
+            }.ScheduleParallel(query, Dependency);
+        }
+
+
+        internal partial struct RemoveComponentJob : IJobChunk
+        {
+            public float elapsedTime;
+
+
+            internal ComponentTypeHandle<TDelayedActivator> typeHandle;
+
+            internal EntityCommandBuffer.ParallelWriter ecb;
+
+            [ReadOnly] internal EntityTypeHandle entityHandle;
+
+            public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
+            {
+
+                var components = chunk.GetNativeArray(ref typeHandle);
+                NativeArray<Entity> entities = chunk.GetNativeArray(entityHandle);
+
+
+                for (int i = 0; i < entities.Length; i++)
+                {
+                    var compData = components[i];
+
+                    if (compData.GetActivationTime() <= elapsedTime)
+                    {
+                        var e = compData.GetEntityRef();
+
+                        ecb.RemoveComponent<TToRemove>(unfilteredChunkIndex, e);
+
+                        ecb.DestroyEntity(unfilteredChunkIndex, entities[i]);
+                    }
+
+                }
+            }
+        }
+    }
+
+    public abstract partial class EnableDisabletWithDelaySystem<TDelayedActivator, TTarget> : SystemBase
+        where TDelayedActivator : unmanaged, IComponentData, IDelayedEnableDisableComponentDataCommand
+        where TTarget : unmanaged, IComponentData, IEnableableComponent
+    {
+        private EntityQuery query;
+
+        protected override void OnCreate()
+        {
+            query = GetEntityQuery(ComponentType.ReadWrite<TDelayedActivator>());
+        }
+
+        protected override void OnUpdate()
+        {
+            var elapsedTime = SystemAPI.Time.ElapsedTime;
+
+            var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(World.Unmanaged).AsParallelWriter();
+
+
+            Dependency = new EnableDisableComponentJob()
+            {
+                ecb = ecb,
+                typeHandle = GetComponentTypeHandle<TDelayedActivator>(isReadOnly: false),
+                entityHandle = SystemAPI.GetEntityTypeHandle(),
+                elapsedTime = (float)elapsedTime,
+            }.ScheduleParallel(query, Dependency);
+        }
+
+
+        internal partial struct EnableDisableComponentJob : IJobChunk
+        {
+            public float elapsedTime;
+
+
+            internal ComponentTypeHandle<TDelayedActivator> typeHandle;
+
+            internal EntityCommandBuffer.ParallelWriter ecb;
+
+            [ReadOnly] internal EntityTypeHandle entityHandle;
+
+            public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
+            {
+
+                var components = chunk.GetNativeArray(ref typeHandle);
+                NativeArray<Entity> entities = chunk.GetNativeArray(entityHandle);
+
+
+                for (int i = 0; i < entities.Length; i++)
+                {
+                    var compData = components[i];
+
+                    if (compData.GetActivationTime() <= elapsedTime)
+                    {
+                        var e = compData.GetEntityRef();
+
+                        ecb.SetComponentEnabled<TTarget>(unfilteredChunkIndex, e, compData.GetEnableState());
+
+                        ecb.DestroyEntity(unfilteredChunkIndex, entities[i]);
+                    }
+
+                }
+            }
+        }
+    }
 
     public abstract partial class AddComponentWithDelay<TDelayedActivator, TCommand> : SystemBase
         where TDelayedActivator : unmanaged, IComponentData, IDelayedAddComponentDataCommand<TCommand>
