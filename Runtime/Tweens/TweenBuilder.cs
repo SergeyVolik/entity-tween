@@ -1,28 +1,16 @@
-using DG.Tweening;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
-using System.Runtime.InteropServices;
 using Timespawn.EntityTween.Math;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using UnityEngine;
-
 
 namespace Timespawn.EntityTween.Tweens
 {
     public unsafe ref struct TweenBuilder
     {
-
-
         DelayedMoveTween moveTween;
         DelayedRotationTween rotTween;
         DelayedScaleTween scaleTween;
 
         TweenType type;
-
 
         private enum TweenType
         {
@@ -84,7 +72,6 @@ namespace Timespawn.EntityTween.Tweens
 
             return this;
         }
-
 
         public TweenBuilder BindCurrent(in EntityManager entityManager, in Entity e)
         {
@@ -150,8 +137,6 @@ namespace Timespawn.EntityTween.Tweens
 
         }
 
-       
-
         public TweenBuilder BindCurrent(in EntityCommandBuffer ecb, in Entity e)
         {
             var delayeEntity = ecb.CreateEntity();
@@ -173,15 +158,8 @@ namespace Timespawn.EntityTween.Tweens
                     break;
                 default:
                     break;
-            }
-
-          
+            }     
             return this;
-
-
-        }
-
-
-        
+        }   
     }
 }
