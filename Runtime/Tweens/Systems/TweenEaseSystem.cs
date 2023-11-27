@@ -7,6 +7,12 @@ namespace Timespawn.EntityTween
     [UpdateInGroup(typeof(TweenSimulationSystemGroup))]
     internal partial class TweenEaseSystem : SystemBase
     {
+        protected override void OnCreate()
+        {         
+            base.OnCreate();
+            RequireForUpdate<EnableTweensT>();
+        }
+
         protected override void OnUpdate()
         {
             float deltaTime = SystemAPI.Time.DeltaTime;

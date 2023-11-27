@@ -21,6 +21,7 @@ namespace Timespawn.EntityTween.Tweens
         where TTweenInfo : unmanaged, IComponentData, ITweenId, ITweenInfo<TTweenInfoValue>        
         where TTweenInfoValue : unmanaged
     {
+
         [BurstCompile]
         internal struct GenerateJob : IJobChunk
         {
@@ -77,6 +78,9 @@ namespace Timespawn.EntityTween.Tweens
         protected override void OnCreate()
         {
             TweenCommandQuery = GetEntityQuery(ComponentType.ReadOnly<TTweenCommand>());
+
+            base.OnCreate();
+            RequireForUpdate<EnableTweensT>();
         }
 
         protected override void OnUpdate()

@@ -6,6 +6,11 @@ namespace Timespawn.EntityTween.Tweens
     [UpdateAfter(typeof(TweenStateSystem))]
     internal partial class TweenResumeSystem : SystemBase
     {
+        protected override void OnCreate()
+        {
+            base.OnCreate();
+            RequireForUpdate<EnableTweensT>();
+        }
         protected override void OnUpdate()
         {
             

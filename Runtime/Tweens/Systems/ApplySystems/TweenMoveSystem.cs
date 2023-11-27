@@ -5,9 +5,14 @@ using Unity.Transforms;
 
 namespace Timespawn.EntityTween
 {
+
     [UpdateInGroup(typeof(TweenApplySystemGroup))]
     internal partial class TweenMoveSystem : SystemBase
     {
+        protected override void OnCreate()
+        {
+            RequireForUpdate<EnableTweensT>();
+        }
         protected override void OnUpdate()
         {
             Dependency = Entities

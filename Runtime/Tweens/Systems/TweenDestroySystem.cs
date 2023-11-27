@@ -86,6 +86,8 @@ namespace Timespawn.EntityTween.Tweens
 
         protected override void OnCreate()
         {
+            RequireForUpdate<EnableTweensT>();
+
             TweenInfoQuery = GetEntityQuery(
                 ComponentType.ReadOnly<TTweenInfo>(),
                 ComponentType.ReadOnly<TweenState>(),

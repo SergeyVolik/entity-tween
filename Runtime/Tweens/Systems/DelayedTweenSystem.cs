@@ -214,9 +214,10 @@ namespace Timespawn.EntityTween.Tweens
         where TCommand : unmanaged, IComponentData
     {
         private EntityQuery query;
-
+       
         protected override void OnCreate()
         {
+            RequireForUpdate<EnableTweensT>();
             query = GetEntityQuery(ComponentType.ReadWrite<TDelayedActivator>());
         }
 

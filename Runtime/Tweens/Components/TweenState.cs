@@ -4,7 +4,11 @@ using Unity.Mathematics;
 
 namespace Timespawn.EntityTween.Tweens
 {
-    public struct TweenState : IBufferElementData, ITweenId
+    public struct EnableTweensT : IComponentData
+    {
+
+    }
+        public struct TweenState : IBufferElementData, ITweenId
     {
         internal const byte LOOP_COUNT_INFINITE = 0;
 

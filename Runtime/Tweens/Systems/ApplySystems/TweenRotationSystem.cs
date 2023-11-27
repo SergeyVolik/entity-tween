@@ -8,6 +8,10 @@ namespace Timespawn.EntityTween
     [UpdateInGroup(typeof(TweenApplySystemGroup))]
     internal partial class TweenRotationSystem : SystemBase
     {
+        protected override void OnCreate()
+        {
+            RequireForUpdate<EnableTweensT>();
+        }
         protected override void OnUpdate()
         {
             Dependency = Entities

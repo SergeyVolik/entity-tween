@@ -7,6 +7,11 @@ namespace Timespawn.EntityTween.Tweens
     [UpdateBefore(typeof(TweenDestroySystemGroup))]
     internal partial class TweenStopSystem : SystemBase
     {
+        protected override void OnCreate()
+        {
+            base.OnCreate();
+            RequireForUpdate<EnableTweensT>();
+        }
         protected override void OnUpdate()
         {
            var destroyBufferFromEntity = SystemAPI.GetBufferLookup<TweenDestroyCommand>(true);

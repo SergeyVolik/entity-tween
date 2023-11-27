@@ -5,15 +5,10 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 
-
 [assembly: InternalsVisibleTo("Timespawn.EntityTween.Tests")]
 
 namespace Timespawn.EntityTween.Tweens
 {
-
-
-
-
     public static class Tween
     {
         public const byte Infinite = TweenState.LOOP_COUNT_INFINITE;
