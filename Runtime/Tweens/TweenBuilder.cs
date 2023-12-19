@@ -44,7 +44,7 @@ namespace Timespawn.EntityTween.Tweens
          in float startTweenTime = 0.0f)
         {
             var delayeEntity = m_ECB.CreateEntity();
-            var scaleTween = Tween.CreateScaleCommand(Entity.Null, start, end, duration, easeDesc, isPingPong, loopCount, startDelay, startTime: startTweenTime);
+            var scaleTween = Tween.CreateScaleCommand(target, start, end, duration, easeDesc, isPingPong, loopCount, startDelay, startTime: startTweenTime);
             m_ECB.AddComponent(delayeEntity, scaleTween);
 
             return this;
@@ -62,7 +62,7 @@ namespace Timespawn.EntityTween.Tweens
            in float startTime = 0.0f)
         {
             var delayeEntity = m_ECB.CreateEntity();
-            var rotTween = Tween.CreateRotationCommand(Entity.Null, start, end, duration, easeDesc, isPingPong, loopCount, startDelay, startTime: startTime);
+            var rotTween = Tween.CreateRotationCommand(target, start, end, duration, easeDesc, isPingPong, loopCount, startDelay, startTime: startTime);
             m_ECB.AddComponent(delayeEntity, rotTween);
 
             return this;
